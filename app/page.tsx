@@ -14,7 +14,7 @@ type Produto = {
   variacoes?: Variacao[];
 };
 
-const TAMANHOS = ["PP", "P", "M", "G", "GG", "G1", "Único"];
+const TAMANHOS = ["P", "M", "G", "GG", "XG"];
 
 export default function Home() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
@@ -31,7 +31,6 @@ export default function Home() {
         setLoading(false);
       });
 
-    // 🔥 pegar busca da URL
     const params = new URLSearchParams(window.location.search);
     const buscaUrl = params.get("busca");
 
@@ -54,9 +53,7 @@ export default function Home() {
 
   const compartilhar = (produto: Produto) => {
     const nome = encodeURIComponent(produto.nome);
-
     const link = `https://catalogo-store.vercel.app/?busca=${nome}`;
-
     const texto = `🔥 Olha esse produto:\n${produto.nome}\n${link}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
@@ -205,7 +202,6 @@ export default function Home() {
           onChange={(e) => setBusca(e.target.value)}
         />
 
-        {/* 🔥 FILTRO TAMANHO */}
         <div className="filters">
           <button
             onClick={() => setTamanhoSelecionado(null)}
@@ -233,7 +229,7 @@ export default function Home() {
           {produtosFiltrados.map((p) => (
             <div key={p.id} className="card">
               <img
-                src={p.imagem}
+                src={`/api/image?url=${encodeURIComponent(p.imagem)}`}
                 className="img"
                 onClick={() => setImagemExpandida(p.imagem)}
               />
@@ -244,10 +240,7 @@ export default function Home() {
                 {formatarTamanhos(p.variacoes)}
               </p>
 
-              <button
-                className="btn"
-                onClick={() => compartilhar(p)}
-              >
+              <button className="btn" onClick={() => compartilhar(p)}>
                 Compartilhar produto
               </button>
             </div>
@@ -255,10 +248,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 🖼️ MODAL IMAGEM */}
       {imagemExpandida && (
         <div className="modal" onClick={() => setImagemExpandida(null)}>
-          <img src={imagemExpandida} />
+          <img
+            src={`/api/image?url=${encodeURIComponent(imagemExpandida)}`}
+          />
         </div>
       )}
     </>
