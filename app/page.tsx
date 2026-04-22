@@ -46,7 +46,7 @@ export default function Home() {
 
   const compartilhar = (produto: Produto) => {
     const texto = `🔥 Olha esse produto:\n${produto.nome}\n${produto.imagem}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
+    window.open(`https://wa.me/?text=${https://catalogo-store.vercel.app/(texto)}`);
   };
 
   const produtosFiltrados = produtos.filter((p) => {
