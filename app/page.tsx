@@ -21,15 +21,12 @@ export default function Home() {
   useEffect(() => {
     fetch("https://cs-store-api-production.up.railway.app/produtos")
       .then((res) => res.json())
-      .then((data) => setProdutos(data));
+      .then(setProdutos);
   }, []);
 
   const compartilhar = (produto: Produto) => {
-    const texto = `🔥 Olha esse produto:\n${produto.nome}`;
-    window.open(
-      `https://wa.me/?text=${encodeURIComponent(texto)}`,
-      "_blank"
-    );
+    const texto = `🔥 ${produto.nome}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
   };
 
   const filtrados = produtos.filter((p) =>
@@ -37,38 +34,42 @@ export default function Home() {
   );
 
   return (
-    <main className="bg-gray-100 min-h-screen">
-      {/* 🔥 HEADER */}
-      <header className="bg-black text-white p-4 flex justify-between items-center">
-        <h1 className="font-bold text-lg">CS STORE</h1>
-        <a
-          href="https://wa.me/"
-          className="bg-green-500 px-3 py-1 rounded text-sm"
-        >
-          WhatsApp
-        </a>
-      </header>
-
-      {/* 🎯 HERO */}
-      <div className="bg-black text-white p-6">
-        <h2 className="text-2xl font-bold">
+    <main className="bg-[#f5f5f5] min-h-screen">
+      
+      {/* 🔥 HERO */}
+      <section className="bg-black text-white p-8">
+        <h1 className="text-3xl font-bold leading-tight">
           Estilo que se destaca.
-        </h2>
-        <p className="text-sm mt-2">
-          Compartilhe com seus clientes
+          <br />
+          Qualidade que entrega.
+        </h1>
+
+        <p className="mt-3 text-gray-300">
+          Os melhores produtos para você compartilhar.
         </p>
 
         <input
-          type="text"
-          placeholder="Buscar produto..."
-          className="mt-4 w-full p-2 rounded text-black"
+          placeholder="Buscar produtos..."
+          className="mt-6 w-full p-3 rounded-full text-black"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
         />
+      </section>
+
+      {/* 🧩 CATEGORIAS (fake por enquanto) */}
+      <div className="flex gap-2 overflow-x-auto p-4">
+        {["Todos", "Camisetas", "Moletons", "Calças"].map((cat) => (
+          <button
+            key={cat}
+            className="bg-white px-4 py-2 rounded-full text-sm shadow"
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       {/* 🛍️ GRID */}
-      <div className="p-4 grid grid-cols-2 gap-4">
+      <section className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
         {filtrados.map((p) => {
           const tamanhos =
             p.variacoes
@@ -78,39 +79,58 @@ export default function Home() {
           return (
             <div
               key={p.id}
-              className="bg-white rounded-xl shadow p-2"
+              className="bg-white rounded-2xl shadow hover:shadow-lg transition p-3"
             >
               <img
                 src={p.imagem}
-                className="rounded-lg w-full"
+                className="rounded-xl w-full"
               />
 
-              <h2 className="text-sm font-semibold mt-2">
+              <h2 className="mt-2 text-sm font-semibold">
                 {p.nome}
               </h2>
 
-              {/* 🏷️ TAMANHOS */}
+              <p className="text-xs text-gray-400">
+                Tamanhos disponíveis
+              </p>
+
               <div className="flex gap-1 mt-2 flex-wrap">
                 {tamanhos.map((t, i) => (
                   <span
                     key={i}
-                    className="text-xs border px-2 py-1 rounded"
+                    className="text-xs px-2 py-1 border rounded-full"
                   >
                     {t}
                   </span>
                 ))}
               </div>
 
-              {/* 📲 BOTÃO */}
               <button
                 onClick={() => compartilhar(p)}
-                className="mt-3 w-full bg-black text-white py-2 rounded"
+                className="mt-3 w-full bg-black text-white py-2 rounded-full text-sm"
               >
                 Compartilhar
               </button>
             </div>
           );
         })}
+      </section>
+
+      {/* 💚 CTA FINAL */}
+      <div className="bg-black text-white p-6 mt-6">
+        <h3 className="text-lg font-bold">
+          Gostou de algum produto?
+        </h3>
+        <p className="text-sm text-gray-400">
+          Fale agora no WhatsApp
+        </p>
+
+        <a
+          href="https://wa.me/"
+          className="mt-3 inline-block bg-green-500 px-4 py-2 rounded-full"
+        >
+          Falar no WhatsApp
+        </a>
       </div>
     </main>
   );
