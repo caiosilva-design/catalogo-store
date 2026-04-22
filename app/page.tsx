@@ -14,7 +14,7 @@ type Produto = {
   variacoes?: Variacao[];
 };
 
-const TAMANHOS = ["PP","P", "M", "G", "GG", "G1"];
+const TAMANHOS = ["P", "M", "G", "GG", "XG"];
 
 export default function Home() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
@@ -33,10 +33,7 @@ export default function Home() {
 
     const params = new URLSearchParams(window.location.search);
     const buscaUrl = params.get("busca");
-
-    if (buscaUrl) {
-      setBusca(buscaUrl);
-    }
+    if (buscaUrl) setBusca(buscaUrl);
   }, []);
 
   const formatarTamanhos = (variacoes?: Variacao[]) => {
@@ -55,7 +52,6 @@ export default function Home() {
     const nome = encodeURIComponent(produto.nome);
     const link = `https://catalogo-store.vercel.app/?busca=${nome}`;
     const texto = `🔥 Olha esse produto:\n${produto.nome}\n${link}`;
-
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
   };
 
@@ -78,6 +74,13 @@ export default function Home() {
           background: #020617;
           font-family: sans-serif;
           color: white;
+          user-select: none;
+        }
+
+        img {
+          -webkit-user-drag: none;
+          user-select: none;
+          pointer-events: auto;
         }
 
         .container {
@@ -232,6 +235,8 @@ export default function Home() {
                 src={`/api/image?url=${encodeURIComponent(p.imagem)}`}
                 className="img"
                 onClick={() => setImagemExpandida(p.imagem)}
+                onContextMenu={(e) => e.preventDefault()}
+                draggable={false}
               />
 
               <p className="name">{p.nome}</p>
@@ -252,6 +257,8 @@ export default function Home() {
         <div className="modal" onClick={() => setImagemExpandida(null)}>
           <img
             src={`/api/image?url=${encodeURIComponent(imagemExpandida)}`}
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
           />
         </div>
       )}
