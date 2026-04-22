@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Catalogo Store",
-  description: "Catálogo de produtos",
+  title: "CS Store — Catálogo",
+  description: "Catálogo de moda CS Store",
 };
 
 export default function RootLayout({
@@ -10,7 +10,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body style={{ margin: 0, background: "#F7F4EF" }}>{children}</body>
     </html>
   );
 }
