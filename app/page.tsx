@@ -14,7 +14,7 @@ type Produto = {
   variacoes?: Variacao[];
 };
 
-const TAMANHOS = ["PP", "P", "M", "G", "GG", "XG"];
+const TAMANHOS = ["PP", "P", "M", "G", "GG", "XG", "Unico"];
 
 export default function Home() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
@@ -30,6 +30,14 @@ export default function Home() {
         setProdutos(data);
         setLoading(false);
       });
+
+    // 🔥 pegar busca da URL
+    const params = new URLSearchParams(window.location.search);
+    const buscaUrl = params.get("busca");
+
+    if (buscaUrl) {
+      setBusca(buscaUrl);
+    }
   }, []);
 
   const formatarTamanhos = (variacoes?: Variacao[]) => {
@@ -45,8 +53,13 @@ export default function Home() {
   };
 
   const compartilhar = (produto: Produto) => {
-    const texto = `🔥 Olha esse produto:\n${produto.nome}\n${produto.imagem}`;
-    window.open(`https://wa.me/?text=${https://catalogo-store.vercel.app/(texto)}`);
+    const nome = encodeURIComponent(produto.nome);
+
+    const link = `https://catalogo-store.vercel.app/?busca=${nome}`;
+
+    const texto = `🔥 Olha esse produto:\n${produto.nome}\n${link}`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
   };
 
   const produtosFiltrados = produtos.filter((p) => {
@@ -192,6 +205,7 @@ export default function Home() {
           onChange={(e) => setBusca(e.target.value)}
         />
 
+        {/* 🔥 FILTRO TAMANHO */}
         <div className="filters">
           <button
             onClick={() => setTamanhoSelecionado(null)}
