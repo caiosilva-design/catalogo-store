@@ -21,6 +21,7 @@ export default function Home() {
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState<string | null>(null);
+  const [imagemExpandida, setImagemExpandida] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("https://cs-store-api-production.up.railway.app/produtos")
@@ -41,6 +42,11 @@ export default function Home() {
     return `${tamanhos.slice(0, -1).join(", ")} e ${
       tamanhos[tamanhos.length - 1]
     }`;
+  };
+
+  const compartilhar = (produto: Produto) => {
+    const texto = `🔥 Olha esse produto:\n${produto.nome}\n${produto.imagem}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
   };
 
   const produtosFiltrados = produtos.filter((p) => {
@@ -75,6 +81,7 @@ export default function Home() {
           font-size: 28px;
           font-weight: bold;
           margin-bottom: 20px;
+          color: black;
         }
 
         .search {
@@ -129,6 +136,7 @@ export default function Home() {
           aspect-ratio: 1/1;
           object-fit: cover;
           border-radius: 10px;
+          cursor: pointer;
         }
 
         .name {
@@ -153,6 +161,25 @@ export default function Home() {
           font-weight: bold;
           cursor: pointer;
         }
+
+        .modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 999;
+        }
+
+        .modal img {
+          max-width: 90%;
+          max-height: 90%;
+          border-radius: 10px;
+        }
       `}</style>
 
       <div className="container">
@@ -165,7 +192,6 @@ export default function Home() {
           onChange={(e) => setBusca(e.target.value)}
         />
 
-        {/* 🔥 FILTRO TAMANHO */}
         <div className="filters">
           <button
             onClick={() => setTamanhoSelecionado(null)}
@@ -192,7 +218,11 @@ export default function Home() {
         <div className="grid">
           {produtosFiltrados.map((p) => (
             <div key={p.id} className="card">
-              <img src={p.imagem} className="img" />
+              <img
+                src={p.imagem}
+                className="img"
+                onClick={() => setImagemExpandida(p.imagem)}
+              />
 
               <p className="name">{p.nome}</p>
 
@@ -200,11 +230,23 @@ export default function Home() {
                 {formatarTamanhos(p.variacoes)}
               </p>
 
-              <button className="btn">Ver produto</button>
+              <button
+                className="btn"
+                onClick={() => compartilhar(p)}
+              >
+                Compartilhar produto
+              </button>
             </div>
           ))}
         </div>
       </div>
+
+      {/* 🖼️ MODAL IMAGEM */}
+      {imagemExpandida && (
+        <div className="modal" onClick={() => setImagemExpandida(null)}>
+          <img src={imagemExpandida} />
+        </div>
+      )}
     </>
   );
 }
