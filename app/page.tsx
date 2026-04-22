@@ -14,7 +14,7 @@ type Produto = {
   variacoes?: Variacao[];
 };
 
-const TAMANHOS = ["PP", "P", "M", "G", "GG", "XG", "Único"];
+const TAMANHOS = ["PP", "P", "M", "G", "GG", "G1", "Único"];
 
 export default function Home() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
