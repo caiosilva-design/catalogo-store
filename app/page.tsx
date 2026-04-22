@@ -24,9 +24,19 @@ export default function Home() {
       .then(setProdutos);
   }, []);
 
-  const compartilhar = (produto: Produto) => {
-    const texto = `🔥 ${produto.nome}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`);
+  const formatarTamanhos = (variacoes?: Variacao[]) => {
+    const tamanhos =
+      variacoes
+        ?.filter((v) => v.disponivel)
+        .map((v) => v.tamanho) || [];
+
+    if (tamanhos.length === 0) return "Sem estoque";
+
+    if (tamanhos.length === 1) return tamanhos[0];
+
+    return `${tamanhos.slice(0, -1).join(", ")} e ${
+      tamanhos[tamanhos.length - 1]
+    }`;
   };
 
   const filtrados = produtos.filter((p) =>
@@ -34,104 +44,83 @@ export default function Home() {
   );
 
   return (
-    <main className="bg-[#f5f5f5] min-h-screen">
-      
+    <main className="min-h-screen bg-gradient-to-b from-black via-[#0a0f1f] to-black text-white">
+
       {/* 🔥 HERO */}
-      <section className="bg-black text-white p-8">
-        <h1 className="text-3xl font-bold leading-tight">
+      <section className="p-6 md:p-10 max-w-6xl mx-auto">
+        <h1 className="text-3xl md:text-5xl font-bold leading-tight">
           Estilo que se destaca.
           <br />
-          Qualidade que entrega.
+          <span className="text-blue-500">
+            Qualidade que entrega.
+          </span>
         </h1>
 
-        <p className="mt-3 text-gray-300">
-          Os melhores produtos para você compartilhar.
+        <p className="mt-3 text-gray-400">
+          Os melhores produtos para você e seus clientes.
         </p>
 
         <input
           placeholder="Buscar produtos..."
-          className="mt-6 w-full p-3 rounded-full text-black"
+          className="mt-6 w-full p-3 rounded-full bg-[#111] border border-gray-700 focus:outline-none"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
         />
       </section>
 
-      {/* 🧩 CATEGORIAS (fake por enquanto) */}
-      <div className="flex gap-2 overflow-x-auto p-4">
-        {["Todos", "Camisetas", "Moletons", "Calças"].map((cat) => (
-          <button
-            key={cat}
-            className="bg-white px-4 py-2 rounded-full text-sm shadow"
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* 🛍️ GRID */}
-      <section className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-        {filtrados.map((p) => {
-          const tamanhos =
-            p.variacoes
-              ?.filter((v) => v.disponivel)
-              .map((v) => v.tamanho) || [];
+      <section className="p-4 md:p-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
 
-          return (
-            <div
-              key={p.id}
-              className="bg-white rounded-2xl shadow hover:shadow-lg transition p-3"
-            >
+        {filtrados.map((p) => (
+          <div
+            key={p.id}
+            className="bg-[#0f172a] rounded-2xl border border-gray-800 p-3 hover:scale-[1.02] transition"
+          >
+            {/* 📸 IMAGEM CONTROLADA */}
+            <div className="w-full aspect-square overflow-hidden rounded-xl bg-black">
               <img
                 src={p.imagem}
-                className="rounded-xl w-full"
+                alt={p.nome}
+                className="w-full h-full object-cover"
               />
-
-              <h2 className="mt-2 text-sm font-semibold">
-                {p.nome}
-              </h2>
-
-              <p className="text-xs text-gray-400">
-                Tamanhos disponíveis
-              </p>
-
-              <div className="flex gap-1 mt-2 flex-wrap">
-                {tamanhos.map((t, i) => (
-                  <span
-                    key={i}
-                    className="text-xs px-2 py-1 border rounded-full"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-
-              <button
-                onClick={() => compartilhar(p)}
-                className="mt-3 w-full bg-black text-white py-2 rounded-full text-sm"
-              >
-                Compartilhar
-              </button>
             </div>
-          );
-        })}
+
+            <h2 className="mt-3 text-sm font-semibold">
+              {p.nome}
+            </h2>
+
+            <p className="text-xs text-gray-400 mt-1">
+              Tamanhos disponíveis
+            </p>
+
+            <p className="text-sm text-blue-400 mt-1">
+              {formatarTamanhos(p.variacoes)}
+            </p>
+
+            <button className="mt-3 w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-sm font-semibold">
+              Ver produto
+            </button>
+          </div>
+        ))}
       </section>
 
-      {/* 💚 CTA FINAL */}
-      <div className="bg-black text-white p-6 mt-6">
-        <h3 className="text-lg font-bold">
-          Gostou de algum produto?
+      {/* 💬 CTA FINAL */}
+      <section className="bg-[#020617] border-t border-gray-800 p-6 mt-8 text-center">
+        <h3 className="text-lg font-semibold">
+          Precisa de ajuda?
         </h3>
-        <p className="text-sm text-gray-400">
-          Fale agora no WhatsApp
+        <p className="text-gray-400 text-sm mt-1">
+          Fale com a gente e garanta o melhor preço
         </p>
 
         <a
           href="https://wa.me/"
-          className="mt-3 inline-block bg-green-500 px-4 py-2 rounded-full"
+          className="inline-block mt-4 bg-green-500 px-5 py-2 rounded-lg font-semibold"
         >
           Falar no WhatsApp
         </a>
-      </div>
+      </section>
+
     </main>
   );
 }
