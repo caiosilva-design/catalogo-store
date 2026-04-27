@@ -1,6 +1,13 @@
 export const metadata = {
-  title: "CS Store — Catálogo",
-  description: "Catálogo de moda CS Store",
+  title: "Produtos",
+  description: "Garanta em liquidação!",
+  openGraph: {
+    title: "Catálogo a pronta entrega!",
+    description: "Confira nosso catálogo personalizado!",
+    url: "https://catalogo-store.vercel.app/",
+    siteName: "Produtos",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
