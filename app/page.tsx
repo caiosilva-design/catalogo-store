@@ -56,6 +56,8 @@ export default function Home() {
   };
 
   const produtosFiltrados = produtos.filter((p) => {
+    const n = p.nome.toLowerCase();
+    const permitido = !n.includes("drop") && !n.includes("vip") && !n.includes("upgrade");
     const matchBusca = p.nome.toLowerCase().includes(busca.toLowerCase());
 
     const matchTamanho =
@@ -64,7 +66,7 @@ export default function Home() {
         (v) => v.disponivel && v.tamanho === tamanhoSelecionado
       );
 
-    return matchBusca && matchTamanho;
+    return permitido && matchBusca && matchTamanho;
   });
 
   return (
