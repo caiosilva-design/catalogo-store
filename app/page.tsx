@@ -14,11 +14,12 @@ type Produto = {
   variacoes?: Variacao[];
 };
 
-type GrupoCategoria = "Todos" | "Masculina" | "Feminina" | "Bermuda" | "Caixa";
+type GrupoCategoria = "Todos" | "Masculina" | "Feminina" | "Bermuda" | "Caixa" | "Cropped";
 type GrupoQualidade = "Todas" | "Premium" | "Tailandesa";
 
 function getCategoria(nome: string): GrupoCategoria {
   const n = nome.toLowerCase();
+  if (n.includes("cropped")) return "Cropped";
   if (n.includes("feminina") || n.includes("feminino")) return "Feminina";
   if (n.includes("caixa")) return "Caixa";
   if (n.includes("bermuda")) return "Bermuda";
@@ -28,7 +29,7 @@ function getCategoria(nome: string): GrupoCategoria {
 function getQualidade(nome: string): GrupoQualidade | null {
   const n = nome.toLowerCase();
   const cat = getCategoria(nome);
-  if (cat === "Bermuda" || cat === "Caixa") return null; // sem qualidade
+  if (cat === "Bermuda" || cat === "Caixa" || cat === "Cropped") return null; // sem qualidade
   if (n.includes("tailandesa")) return "Tailandesa";
   return "Premium";
 }
@@ -127,7 +128,7 @@ export default function Home() {
     return permitido && matchBusca && matchCategoria && matchTamanho && matchQualidade;
   });
 
-  const categorias: GrupoCategoria[] = ["Todos", "Masculina", "Feminina", "Bermuda", "Caixa"];
+  const categorias: GrupoCategoria[] = ["Todos", "Masculina", "Feminina", "Cropped", "Bermuda", "Caixa"];
   const qualidades: GrupoQualidade[] = ["Todas", "Premium", "Tailandesa"];
 
   return (
