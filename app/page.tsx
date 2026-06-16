@@ -14,21 +14,61 @@ type Produto = {
   variacoes?: Variacao[];
 };
 
-const TAMANHOS = ["PP", "P", "M", "G", "GG", "XL", "2XL", "Único"];
+type GrupoCategoria = "Todos" | "Masculina" | "Feminina" | "Bermuda" | "Caixa";
+
+function getCategoria(nome: string): GrupoCategoria {
+  const n = nome.toLowerCase();
+  if (n.includes("feminina") || n.includes("feminino")) return "Feminina";
+  if (n.includes("caixa")) return "Caixa";
+  if (n.includes("bermuda")) return "Bermuda";
+  return "Masculina";
+}
+
+function normalizarTamanho(tamanho: string): string {
+  if (tamanho.toUpperCase().includes("UNICO")) return "ÚNICO";
+  return tamanho.toUpperCase();
+}
+
+const ORDEM_TAMANHOS = ["P", "M", "G", "GG", "XL", "2XL", "3XL", "4XL", "ÚNICO"];
+
+function ordenarTamanhos(tamanhos: string[]): string[] {
+  return [...tamanhos].sort((a, b) => {
+    const ia = ORDEM_TAMANHOS.indexOf(a);
+    const ib = ORDEM_TAMANHOS.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+}
 
 export default function Home() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState<string | null>(null);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<GrupoCategoria>("Todos");
   const [imagemExpandida, setImagemExpandida] = useState<string | null>(null);
+  const [tamanhosDinamicos, setTamanhosDinamicos] = useState<string[]>([]);
 
   useEffect(() => {
     fetch("https://cs-store-api-production.up.railway.app/produtos")
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: Produto[]) => {
         setProdutos(data);
         setLoading(false);
+
+        // Extrai tamanhos disponíveis de todas as variações
+        const tamanhosBrutos = new Set<string>();
+        data.forEach((p) => {
+          p.variacoes?.forEach((v) => {
+            if (v.disponivel) {
+              tamanhosBrutos.add(normalizarTamanho(v.tamanho));
+            }
+          });
+        });
+
+        setTamanhosDinamicos(ordenarTamanhos(Array.from(tamanhosBrutos)));
       });
 
     const params = new URLSearchParams(window.location.search);
@@ -38,14 +78,14 @@ export default function Home() {
 
   const formatarTamanhos = (variacoes?: Variacao[]) => {
     const tamanhos =
-      variacoes?.filter((v) => v.disponivel).map((v) => v.tamanho) || [];
+      variacoes
+        ?.filter((v) => v.disponivel)
+        .map((v) => normalizarTamanho(v.tamanho)) || [];
 
     if (tamanhos.length === 0) return "Sem estoque";
-    if (tamanhos.length === 1) return tamanhos[0];
-
-    return `${tamanhos.slice(0, -1).join(", ")} e ${
-      tamanhos[tamanhos.length - 1]
-    }`;
+    const ordenados = ordenarTamanhos(tamanhos);
+    if (ordenados.length === 1) return ordenados[0];
+    return `${ordenados.slice(0, -1).join(", ")} e ${ordenados[ordenados.length - 1]}`;
   };
 
   const compartilhar = (produto: Produto) => {
@@ -60,14 +100,19 @@ export default function Home() {
     const permitido = !n.includes("drop") && !n.includes("vip") && !n.includes("upgrade");
     const matchBusca = p.nome.toLowerCase().includes(busca.toLowerCase());
 
+    const matchCategoria =
+      categoriaSelecionada === "Todos" || getCategoria(p.nome) === categoriaSelecionada;
+
     const matchTamanho =
       !tamanhoSelecionado ||
       p.variacoes?.some(
-        (v) => v.disponivel && v.tamanho === tamanhoSelecionado
+        (v) => v.disponivel && normalizarTamanho(v.tamanho) === tamanhoSelecionado
       );
 
-    return permitido && matchBusca && matchTamanho;
+    return permitido && matchBusca && matchCategoria && matchTamanho;
   });
+
+  const categorias: GrupoCategoria[] = ["Todos", "Masculina", "Feminina", "Bermuda", "Caixa"];
 
   return (
     <>
@@ -107,31 +152,66 @@ export default function Home() {
           background: #020617;
           color: white;
           margin-bottom: 20px;
+          box-sizing: border-box;
+        }
+
+        .filter-section {
+          margin-bottom: 12px;
+        }
+
+        .filter-label {
+          font-size: 11px;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 6px;
         }
 
         .filters {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
-          margin-bottom: 20px;
         }
 
         .filter-btn {
-          padding: 6px 12px;
+          padding: 6px 14px;
           border-radius: 999px;
           border: 1px solid #1e293b;
+          background: transparent;
+          color: #cbd5e1;
           cursor: pointer;
+          font-size: 13px;
+          transition: all 0.15s;
+        }
+
+        .filter-btn:hover {
+          border-color: #334155;
+          color: white;
         }
 
         .active {
           background: #2563eb;
           border-color: #2563eb;
+          color: white;
+        }
+
+        .active-categoria {
+          background: #7c3aed;
+          border-color: #7c3aed;
+          color: white;
+        }
+
+        .divider {
+          border: none;
+          border-top: 1px solid #1e293b;
+          margin: 16px 0;
         }
 
         .grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
+          margin-top: 20px;
         }
 
         @media (min-width: 700px) {
@@ -195,6 +275,12 @@ export default function Home() {
           max-height: 90%;
           border-radius: 10px;
         }
+
+        .count {
+          font-size: 12px;
+          color: #475569;
+          margin-top: 4px;
+        }
       `}</style>
 
       <div className="container">
@@ -207,28 +293,52 @@ export default function Home() {
           onChange={(e) => setBusca(e.target.value)}
         />
 
-        <div className="filters">
-          <button
-            onClick={() => setTamanhoSelecionado(null)}
-            className={`filter-btn ${tamanhoSelecionado === null ? "active" : ""}`}
-          >
-            Todos
-          </button>
+        {/* Filtro de categoria */}
+        <div className="filter-section">
+          <div className="filter-label">Categoria</div>
+          <div className="filters">
+            {categorias.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategoriaSelecionada(cat)}
+                className={`filter-btn ${categoriaSelecionada === cat ? "active-categoria" : ""}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          {TAMANHOS.map((t) => (
+        <hr className="divider" />
+
+        {/* Filtro de tamanho dinâmico */}
+        <div className="filter-section">
+          <div className="filter-label">Tamanho</div>
+          <div className="filters">
             <button
-              key={t}
-              onClick={() => setTamanhoSelecionado(t)}
-              className={`filter-btn ${
-                tamanhoSelecionado === t ? "active" : ""
-              }`}
+              onClick={() => setTamanhoSelecionado(null)}
+              className={`filter-btn ${tamanhoSelecionado === null ? "active" : ""}`}
             >
-              {t}
+              Todos
             </button>
-          ))}
+
+            {tamanhosDinamicos.map((t) => (
+              <button
+                key={t}
+                onClick={() => setTamanhoSelecionado(t)}
+                className={`filter-btn ${tamanhoSelecionado === t ? "active" : ""}`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading && <p>Carregando...</p>}
+
+        {!loading && (
+          <p className="count">{produtosFiltrados.length} produto{produtosFiltrados.length !== 1 ? "s" : ""}</p>
+        )}
 
         <div className="grid">
           {produtosFiltrados.map((p) => (
