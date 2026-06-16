@@ -19,7 +19,7 @@ type GrupoCategoria = "Todos" | "Masculina" | "Feminina" | "Bermuda" | "Caixa";
 function getCategoria(nome: string): GrupoCategoria {
   const n = nome.toLowerCase();
   if (n.includes("feminina") || n.includes("feminino")) return "Feminina";
-  if (n.includes("caixa")) return "Caixa";
+  if (n.includes("Caixa")) return "Caixa";
   if (n.includes("bermuda")) return "Bermuda";
   return "Masculina";
 }
