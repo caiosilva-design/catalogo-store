@@ -15,13 +15,22 @@ type Produto = {
 };
 
 type GrupoCategoria = "Todos" | "Masculina" | "Feminina" | "Bermuda" | "Caixa";
+type GrupoQualidade = "Todas" | "Premium" | "Tailandesa";
 
 function getCategoria(nome: string): GrupoCategoria {
   const n = nome.toLowerCase();
   if (n.includes("feminina") || n.includes("feminino")) return "Feminina";
-  if (n.includes("Caixa")) return "Caixa";
+  if (n.includes("caixa")) return "Caixa";
   if (n.includes("bermuda")) return "Bermuda";
   return "Masculina";
+}
+
+function getQualidade(nome: string): GrupoQualidade | null {
+  const n = nome.toLowerCase();
+  const cat = getCategoria(nome);
+  if (cat === "Bermuda" || cat === "Caixa") return null; // sem qualidade
+  if (n.includes("tailandesa")) return "Tailandesa";
+  return "Premium";
 }
 
 function normalizarTamanho(tamanho: string): string {
@@ -48,6 +57,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState<string | null>(null);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<GrupoCategoria>("Todos");
+  const [qualidadeSelecionada, setQualidadeSelecionada] = useState<GrupoQualidade>("Todas");
   const [imagemExpandida, setImagemExpandida] = useState<string | null>(null);
   const [tamanhosDinamicos, setTamanhosDinamicos] = useState<string[]>([]);
 
@@ -109,10 +119,17 @@ export default function Home() {
         (v) => v.disponivel && normalizarTamanho(v.tamanho) === tamanhoSelecionado
       );
 
-    return permitido && matchBusca && matchCategoria && matchTamanho;
+    const qualidade = getQualidade(p.nome);
+    const matchQualidade =
+      qualidadeSelecionada === "Todas" ||
+      qualidade === qualidadeSelecionada ||
+      qualidade === null; // Bermuda e Caixa passam sempre
+
+    return permitido && matchBusca && matchCategoria && matchTamanho && matchQualidade;
   });
 
   const categorias: GrupoCategoria[] = ["Todos", "Masculina", "Feminina", "Bermuda", "Caixa"];
+  const qualidades: GrupoQualidade[] = ["Todas", "Premium", "Tailandesa"];
 
   return (
     <>
@@ -192,6 +209,12 @@ export default function Home() {
         .active {
           background: #2563eb;
           border-color: #2563eb;
+          color: white;
+        }
+
+        .active-qualidade {
+          background: #059669;
+          border-color: #059669;
           color: white;
         }
 
@@ -304,6 +327,24 @@ export default function Home() {
                 className={`filter-btn ${categoriaSelecionada === cat ? "active-categoria" : ""}`}
               >
                 {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <hr className="divider" />
+
+        {/* Filtro de qualidade */}
+        <div className="filter-section">
+          <div className="filter-label">Qualidade</div>
+          <div className="filters">
+            {qualidades.map((q) => (
+              <button
+                key={q}
+                onClick={() => setQualidadeSelecionada(q)}
+                className={`filter-btn ${qualidadeSelecionada === q ? "active-qualidade" : ""}`}
+              >
+                {q}
               </button>
             ))}
           </div>
