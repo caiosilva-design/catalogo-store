@@ -122,8 +122,7 @@ export default function Home() {
     const qualidade = getQualidade(p.nome);
     const matchQualidade =
       qualidadeSelecionada === "Todas" ||
-      qualidade === qualidadeSelecionada ||
-      qualidade === null; // Bermuda e Caixa passam sempre
+      qualidade === qualidadeSelecionada;
 
     return permitido && matchBusca && matchCategoria && matchTamanho && matchQualidade;
   });
